@@ -12,7 +12,7 @@
             <span class="navbar-brand mb-0 h1">Portfolio Tracker</span>
         </div>
     </header>
-    <div class="container mt-5" ng-controller="PortfolioController">
+    <div class="container mt-2" ng-controller="PortfolioController">
         <div class="row mb-3">
             <div class="col">
                 <input type="text" class="form-control" ng-model="stockName" placeholder="Stock Name">
@@ -54,9 +54,17 @@
         </table>
 
         <div>
-            <p>Total Investment: {{ totalInvestment() | currency:"₹" }}</p>
-            <p>Total Current Value: {{ totalCurrentValue() | currency:"₹" }}</p>
-            <p>Overall Profit/Loss: <span ng-style="{ color: overallProfitLoss() < 0 ? 'red' : (overallProfitLoss() > 0 ? 'green' : 'black') }">{{ overallProfitLoss() | currency:"₹" }}</span></p>
+            <div class="row mb-3">
+                <div class="col">
+                    <h5>Investment: {{ totalInvestment() | currency:"₹" }}</h5>
+                </div>
+                <div class="col">
+                    <h5>Total Current Value: {{ totalCurrentValue() | currency:"₹" }}</h5>
+                </div>
+                <div class="col">
+                    <h5>Overall Profit/Loss: <span ng-style="{ color: overallProfitLoss() < 0 ? 'red' : (overallProfitLoss() > 0 ? 'green' : 'black') }">{{ overallProfitLoss() | currency:"₹" }}</span></h5>
+                </div>
+            </div>
         </div>
     </div>
 
