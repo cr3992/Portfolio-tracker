@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="portfolioTrackerApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <title>Portfolio Tracker</title>
+</head>
+<body>
+    <header class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Portfolio Tracker</span>
+        </div>
+    </header>
+    <div class="container mt-5" ng-controller="PortfolioController">
+        <div class="row mb-3">
+            <div class="col">
+                <input type="text" class="form-control" ng-model="stockName" placeholder="Stock Name">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" ng-model="avgPrice" placeholder="Avg. Price">
+            </div>
+            <div class="col">
+                <input type="number" class="form-control" ng-model="quantity" placeholder="Quantity">
+            </div>
+            <div class="col">
+                <button class="btn btn-primary" ng-click="saveEntry()">Save</button>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Stock Name</th>
+                <th>Avg. Price</th>
+                <th>Quantity</th>
+                <th>Investment</th>
+                <th>LTP</th>
+                <th>Current Value</th>
+                <th>Profit/Loss</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="entry in portfolio track by $index">
+                <td>{{ entry.stockName }}</td>
+                <td>{{ entry.avgPrice | currency:"₹" }}</td>
+                <td>{{ entry.quantity | number }}</td>
+                <td>{{ entry.investment | currency:"₹" }}</td>
+                <td><input type="number" step="0.01" ng-model="entry.ltp" ng-change="updateValues(entry)"></td>
+                <td>{{ entry.currentValue | currency:"₹" }}</td>
+                <td ng-style="{ color: entry.profitLoss < 0 ? 'red' : (entry.profitLoss > 0 ? 'green' : 'black') }">{{ entry.profitLoss | currency:"₹" }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <p>Total Investment: {{ totalInvestment() | currency:"₹" }}</p>
+            <p>Total Current Value: {{ totalCurrentValue() | currency:"₹" }}</p>
+            <p>Overall Profit/Loss: <span ng-style="{ color: overallProfitLoss() < 0 ? 'red' : (overallProfitLoss() > 0 ? 'green' : 'black') }">{{ overallProfitLoss() | currency:"₹" }}</span></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/angular@1.8.2/angular.min.js"></script>
+    <script>
+        var app = angular.module('portfolioTrackerApp', []);
+
+        app.controller('PortfolioController', function ($scope) {
+            $scope.portfolio = JSON.parse(localStorage.getItem('portfolio')) || [];
+
+            $scope.saveEntry = function () {
+                if ($scope.stockName && $scope.avgPrice && $scope.quantity) {
+                    var entry = {
+                        stockName: $scope.stockName,
+                        avgPrice: $scope.avgPrice,
+                        quantity: $scope.quantity,
+                        investment: $scope.avgPrice * $scope.quantity,
+                        ltp: 0,
+                        currentValue: 0,
+                        profitLoss: 0
+                    };
+                    // Use angular.copy to ensure a new object with a unique $$hashKey
+                    $scope.portfolio.push(angular.copy(entry));
+                    localStorage.setItem('portfolio', JSON.stringify($scope.portfolio));
+
+                    $scope.stockName = '';
+                    $scope.avgPrice = '';
+                    $scope.quantity = '';
+                }
+            };
+
+            
+
+            $scope.updateValues = function (entry) {
+                entry.currentValue = entry.ltp * entry.quantity;
+                entry.profitLoss = (entry.ltp - entry.avgPrice) * entry.quantity;
+            };
+
+            $scope.totalInvestment = function () {
+                return $scope.portfolio.reduce(function (total, entry) {
+                    return total + entry.investment;
+                }, 0);
+            };
+
+            $scope.totalCurrentValue = function () {
+                return $scope.portfolio.reduce(function (total, entry) {
+                    return total + entry.currentValue;
+                }, 0);
+            };
+
+            $scope.overallProfitLoss = function () {
+                return $scope.portfolio.reduce(function (total, entry) {
+                    return total + entry.profitLoss;
+                }, 0);
+            };
+        });
+    </script>
+</body>
+</html>
