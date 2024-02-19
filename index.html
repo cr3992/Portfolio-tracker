@@ -30,26 +30,31 @@
 
         <table class="table">
             <thead>
-            <tr>
-                <th>Stock Name</th>
-                <th>Avg. Price</th>
-                <th>Quantity</th>
-                <th>Investment</th>
-                <th>LTP</th>
-                <th>Current Value</th>
-                <th>Profit/Loss</th>
-            </tr>
+                <tr>
+                    <th>Stock Name</th>
+                    <th>Avg. Price</th>
+                    <th>Quantity</th>
+                    <th>Investment</th>
+                    <th>LTP</th>
+                    <th>Current Value</th>
+                    <th>Profit/Loss</th>
+                    <th>Actions</th> <!-- Add Actions header -->
+                </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="entry in portfolio track by $index">
-                <td>{{ entry.stockName }}</td>
-                <td>{{ entry.avgPrice | currency:"₹" }}</td>
-                <td>{{ entry.quantity | number }}</td>
-                <td>{{ entry.investment | currency:"₹" }}</td>
-                <td><input type="number" step="0.01" ng-model="entry.ltp" ng-change="updateValues(entry)"></td>
-                <td>{{ entry.currentValue | currency:"₹" }}</td>
-                <td ng-style="{ color: entry.profitLoss < 0 ? 'red' : (entry.profitLoss > 0 ? 'green' : 'black') }">{{ entry.profitLoss | currency:"₹" }}</td>
-            </tr>
+                <tr ng-repeat="entry in portfolio track by $index">
+                    <td>{{ entry.stockName }}</td>
+                    <td>{{ entry.avgPrice | currency:"₹" }}</td>
+                    <td>{{ entry.quantity | number }}</td>
+                    <td>{{ entry.investment | currency:"₹" }}</td>
+                    <td><input type="number" step="0.01" ng-model="entry.ltp" ng-change="updateValues(entry)"></td>
+                    <td>{{ entry.currentValue | currency:"₹" }}</td>
+                    <td ng-style="{ color: entry.profitLoss < 0 ? 'red' : (entry.profitLoss > 0 ? 'green' : 'black') }">{{ entry.profitLoss | currency:"₹" }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" ng-click="editEntry(entry)">Edit</button>
+                        <button class="btn btn-sm btn-danger" ng-click="deleteEntry(entry)">Delete</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -86,7 +91,6 @@
                         currentValue: 0,
                         profitLoss: 0
                     };
-                    // Use angular.copy to ensure a new object with a unique $$hashKey
                     $scope.portfolio.push(angular.copy(entry));
                     localStorage.setItem('portfolio', JSON.stringify($scope.portfolio));
 
@@ -96,7 +100,20 @@
                 }
             };
 
-            
+            $scope.editEntry = function (entry) {
+                $scope.stockName = entry.stockName;
+                $scope.avgPrice = entry.avgPrice;
+                $scope.quantity = entry.quantity;
+                $scope.deleteEntry(entry);
+            };
+
+            $scope.deleteEntry = function (entry) {
+                var index = $scope.portfolio.indexOf(entry);
+                if (index !== -1) {
+                    $scope.portfolio.splice(index, 1);
+                    localStorage.setItem('portfolio', JSON.stringify($scope.portfolio));
+                }
+            };
 
             $scope.updateValues = function (entry) {
                 entry.currentValue = entry.ltp * entry.quantity;
